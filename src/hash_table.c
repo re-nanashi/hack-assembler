@@ -61,3 +61,26 @@ create_table(int size)
 
         return table;
 }
+
+void
+free_item(ht_item *item)
+{
+        /* free a hash_table item */
+        free(item->key);
+        free(item->value);
+        free(item);
+}
+
+void
+free_table(hash_table *table)
+{
+        /* frees the items within the hash_table */
+        for (int i = 0; i < table->size; i++) {
+                ht_item *item = table->items[i];
+                if (item != NULL) free_item(item);
+        }
+
+        /* free the table */
+        free(table->items);
+        free(table);
+}
