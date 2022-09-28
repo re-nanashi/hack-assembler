@@ -16,7 +16,7 @@ typedef struct hash_table hash_table;
 
 /* hash table definiton */
 struct hash_table {
-        /* array of pointers  to items */
+        /* array of pointers to items */
         ht_item **items;
         int size;
         int count;
@@ -45,4 +45,19 @@ create_item(char *key, char *value)
         strcpy(item->value, value);
 
         return item;
+}
+
+hash_table *
+create_table(int size)
+{
+        /* creates a new hash_table */
+        hash_table *table = (hash_table *)malloc(sizeof(hash_table));
+        table->size = size;
+        table->count = 0;
+        table->items = (ht_item **)calloc(table->size, sizeof(ht_item *));
+
+        for (int i = 0; i < table->size; i++)
+                table->items[i] = NULL;
+
+        return table;
 }
