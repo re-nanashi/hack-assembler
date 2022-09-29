@@ -2,26 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
-/* size of the hash table */
-#define HT_CAPACITY 50000
-
-typedef struct ht_item ht_item;
-
-/* hash table item definiton */
-struct ht_item {
-        char *key;
-        char *value;
-};
-
-typedef struct hash_table hash_table;
-
-/* hash table definiton */
-struct hash_table {
-        /* array of pointers to items */
-        ht_item **items;
-        int size;
-        int count;
-};
+#include "hash_table.h"
+#include "linked_list.h"
 
 unsigned long
 hash_function(char *str)
@@ -86,12 +68,6 @@ free_table(hash_table *table)
         free(table);
 }
 
-// TODO
-void
-handle_collision(hash_table *table, ht_item *item)
-{
-}
-
 void
 ht_insert(hash_table *table, char *key, char *value)
 {
@@ -116,17 +92,23 @@ ht_insert(hash_table *table, char *key, char *value)
                 table->count++;
         }
         else {
-                /* if we have update only the value */
+                /* if we have to update only the value */
                 if (strcmp(current_item->key, key) == 0) {
                         strcpy(current_item->value, value);
                         return;
                 }
                 else {
-                        /* TODO handle_collision function*/
+                        /* TODO handle_collision function */
                         handle_collision(table, item);
                         return;
                 }
         }
+}
+
+// TODO
+void
+handle_collision(hash_table *table, ht_item *item)
+{
 }
 
 char *
