@@ -126,9 +126,11 @@ ht_insert(hash_table *table, char *key, char *value)
 char *
 ht_search(hash_table *table, char *key)
 {
+        /* search the key in the hash table */
         int index = hash_function(key);
         ht_item *item = table->items[index];
 
+        /* returns NULL if it doesn't exist */
         if (item != NULL) {
                 if (strcmp(item->key, key) == 0) {
                         return item->value;
