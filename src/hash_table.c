@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /* size of the hash table */
 #define CAPACITY 50000
@@ -83,4 +84,41 @@ free_table(hash_table *table)
         /* free the table */
         free(table->items);
         free(table);
+}
+
+void
+ht_insert(hash_table *table, char *key, char *value)
+{
+        /* create the hash table item*/
+        ht_item *item = create_item(key, value);
+
+        /* compute the index */
+        int index = hash_function(key);
+
+        ht_item *current_item = table->items[index];
+        /* if the key does not exist */
+        if (current_item == NULL) {
+                /* if the table is already full */
+                if (table->count == table->size) {
+                        printf("Error: Hash Table is full.\n");
+                        free_item(item);
+                        return;
+                }
+
+                /* insert directly */
+                table->items[index] = item;
+                table->count++;
+        }
+        else {
+                /* if we have update only the value */
+                if (strcmp(current_item->key, key) == 0) {
+                        strcpy(current_item->value, value);
+                        return;
+                }
+                else {
+                        /* TODO handle_collision function*/
+                        handle_collision(table, item);
+                        return;
+                }
+        }
 }
