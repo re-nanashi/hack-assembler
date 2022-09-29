@@ -122,3 +122,18 @@ ht_insert(hash_table *table, char *key, char *value)
                 }
         }
 }
+
+char *
+ht_search(hash_table *table, char *key)
+{
+        int index = hash_function(key);
+        ht_item *item = table->items[index];
+
+        if (item != NULL) {
+                if (strcmp(item->key, key) == 0) {
+                        return item->value;
+                }
+        }
+
+        return NULL;
+}
