@@ -86,6 +86,12 @@ free_table(hash_table *table)
         free(table);
 }
 
+// TODO
+void
+handle_collision(hash_table *table, ht_item *item)
+{
+}
+
 void
 ht_insert(hash_table *table, char *key, char *value)
 {
@@ -128,6 +134,7 @@ ht_search(hash_table *table, char *key)
 {
         /* search the key in the hash table */
         int index = hash_function(key);
+        // TODO: search the linked list
         ht_item *item = table->items[index];
 
         /* returns NULL if it doesn't exist */
@@ -138,4 +145,46 @@ ht_search(hash_table *table, char *key)
         }
 
         return NULL;
+}
+
+void
+print_search(hash_table *table, char *key)
+{
+        char *val;
+        if ((val = ht_search(table, key)) == NULL) {
+                printf("Key:%s does not exist\n", key);
+                return;
+        }
+        else {
+                printf("Key:%s, Value:%s\n", key, val);
+        }
+}
+
+void
+print_table(hash_table *table)
+{
+        printf("\nHash Table\n-----------\n'");
+        for (int i = 0; i < table->size; i++) {
+                // Not Null
+                if (table->items[i]) {
+                        printf("Index:%d, Key:%s, Value:%s\n", i,
+                               table->items[i]->key, table->items[i]->value);
+                }
+        }
+        printf("------------------\n\n");
+}
+
+int
+main()
+{
+        hash_table *ht = create_table(HT_CAPACITY);
+        ht_insert(ht, "1", "First address");
+        ht_insert(ht, "2", "Second address");
+        print_search(ht, "1");
+        print_search(ht, "2");
+        print_search(ht, "3");
+        print_table(ht);
+        free_table(ht);
+
+        return 0;
 }
