@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 /* size of the hash table */
-#define CAPACITY 50000
+#define HT_CAPACITY 50000
 
 typedef struct ht_item ht_item;
 
@@ -31,7 +31,7 @@ hash_function(char *str)
         for (int j = 0; str[j]; j++)
                 i += str[j];
 
-        return i % CAPACITY;
+        return i % HT_CAPACITY;
 }
 
 ht_item *
