@@ -94,6 +94,9 @@ ht_insert(hash_table *table, char *key, char *value)
         else {
                 /* if we have to update only the value */
                 if (strcmp(current_item->key, key) == 0) {
+                        free(current_item->value);
+                        current_item->value =
+                            (char *)malloc(strlen(value) + 1);
                         strcpy(current_item->value, value);
                         return;
                 }
