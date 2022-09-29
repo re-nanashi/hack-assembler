@@ -28,8 +28,6 @@ struct hash_table {
         int count;
 };
 
-unsigned long hash_function(char *str);
-
 ht_item *create_item(char *key, char *value);
 
 hash_table *create_table(int size);
