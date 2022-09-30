@@ -7,6 +7,9 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
+/* forward declaration */
+typedef struct ht_item ht_item;
+
 /* @brief The linked_list definition */
 typedef struct linked_list linked_list;
 struct linked_list {
