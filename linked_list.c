@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "linked_list.h"
+#include "hash_table.h"
 
 linked_list *
 allocate_list()
