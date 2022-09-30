@@ -21,6 +21,7 @@ create_item(char *key, char *value)
 {
         /* creates a pointer to a new hash table item */
         ht_item *item = (ht_item *)malloc(sizeof(ht_item));
+
         item->key = (char *)malloc(strlen(key) + 1);
         item->value = (char *)malloc(strlen(value) + 1);
 
@@ -48,10 +49,11 @@ create_table(int size)
 {
         /* creates a new hash_table */
         hash_table *table = (hash_table *)malloc(sizeof(hash_table));
+
         table->size = size;
         table->count = 0;
+        table->overflow_buckets = _create_overflow_buckets(table);
         table->items = (ht_item **)calloc(table->size, sizeof(ht_item *));
-
         for (int i = 0; i < table->size; i++)
                 table->items[i] = NULL;
 
@@ -87,6 +89,9 @@ free_table(hash_table *table)
                 ht_item *item = table->items[i];
                 if (item != NULL) free_item(item);
         }
+
+        /* frees the overflow bucket and it's items */
+        _free_overflow_buckets(table);
 
         /* free the table */
         free(table->items);
