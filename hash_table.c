@@ -158,19 +158,23 @@ handle_collision(hash_table *table, unsigned long index, ht_item *item)
         }
 }
 
+/* i need the items and the overflow buckets*/
 char *
 ht_search(hash_table *table, char *key)
 {
         /* search the key in the hash table */
         int index = _hash_function(key);
-        // TODO: search the linked list
         ht_item *item = table->items[index];
+        linked_list *head = table->overflow_buckets[index];
 
-        /* returns NULL if it doesn't exist */
-        if (item != NULL) {
-                if (strcmp(item->key, key) == 0) {
-                        return item->value;
-                }
+        /* ensure that we move to items inside the overflow list that are not
+         * NULL */
+        while (item != NULL) {
+                if (strcmp(item->key, key) == 0) return item->value;
+                if (head == NULL) return NULL;
+
+                item = head->item;
+                head = head->next;
         }
 
         return NULL;
