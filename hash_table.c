@@ -131,17 +131,31 @@ ht_insert(hash_table *table, char *key, char *value)
                         return;
                 }
                 else {
-                        /* TODO handle_collision function */
                         handle_collision(table, index, item);
                         return;
                 }
         }
 }
 
-// TODO
 void
 handle_collision(hash_table *table, unsigned long index, ht_item *item)
 {
+        linked_list *head = table->overflow_buckets[index];
+
+        if (head == NULL) {
+                /* create the overflow list */
+                head = allocate_list();
+                head->item = item;
+                table->overflow_buckets[index] = head;
+
+                return;
+        }
+        else {
+                /* insert to the list */
+                table->overflow_buckets[index] = linkedlist_insert(head, item);
+
+                return;
+        }
 }
 
 char *
