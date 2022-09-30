@@ -24,6 +24,8 @@ typedef struct hash_table hash_table;
 struct hash_table {
         /* array of pointers to items */
         ht_item **items;
+        /* a linked list that handles index collision */
+        linked_list **overflow_buckets;
         int size;
         int count;
 };
@@ -36,7 +38,7 @@ void free_item(ht_item *item);
 
 void free_table(hash_table *table);
 
-void handle_collision(hash_table *table, ht_item *item);
+void handle_collision(hash_table *table, unsigned long index, ht_item *item);
 
 void ht_insert(hash_table *table, char *key, char *value);
 
