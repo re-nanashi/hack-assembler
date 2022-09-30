@@ -158,7 +158,6 @@ handle_collision(hash_table *table, unsigned long index, ht_item *item)
         }
 }
 
-/* i need the items and the overflow buckets*/
 char *
 ht_search(hash_table *table, char *key)
 {
@@ -171,6 +170,7 @@ ht_search(hash_table *table, char *key)
          * NULL */
         while (item != NULL) {
                 if (strcmp(item->key, key) == 0) return item->value;
+                /* no collision chain exists */
                 if (head == NULL) return NULL;
 
                 item = head->item;
@@ -178,6 +178,99 @@ ht_search(hash_table *table, char *key)
         }
 
         return NULL;
+}
+
+void
+_handle_collision_delete_node(linked_list **llist, int index, char *key)
+{
+        linked_list *current = *llist, *previous = NULL;
+
+        while (current != NULL) {
+                if (strcmp(current->item->key, key) == 0) {
+                        /* the first node(head) of the collision chain*/
+                        if (previous == NULL) {
+                                /* adjust the the current head to head->next */
+                                *llist = current->next;
+
+                                /* free the old node */
+                                current->next = NULL;
+                                free_linkedlist(current);
+
+                                return;
+                        }
+                        /* the node to delete is in the list */
+                        else {
+                                /* unlink the node from the linked list*/
+                                linked_list *node = current;
+                                previous->next = current->next;
+
+                                /* free the current node */
+                                node->next = NULL;
+                                free_linkedlist(node);
+
+                                return;
+                        }
+                }
+
+                previous = current;
+                current = current->next;
+        }
+}
+
+void
+ht_delete(hash_table *table, char *key)
+{
+        /* deletes an item from the table */
+        int index = _hash_function(key);
+        ht_item *item = table->items[index];
+        linked_list *overflow_llist_head = table->overflow_buckets[index];
+
+        if (item == NULL) /* item does not exist */
+                return;
+        else {
+                /* the current item is to be deleted and no collision chain
+                 * exists */
+                if (overflow_llist_head == NULL && strcmp(item->key, key) == 0)
+                {
+                        /* no collision chain; remove the item */
+                        table->items[index] = NULL;
+                        free_item(item);
+                        table->count--;
+
+                        return;
+                }
+                /* collision chain exist */
+                else if (overflow_llist_head != NULL) {
+                        /* the item to be removed is the head */
+                        if (strcmp(item->key, key) == 0) {
+                                /* remove the item; set the head as the new
+                                 * item */
+                                free_item(item);
+
+                                /* create a temp node for the item */
+                                linked_list *node = overflow_llist_head;
+
+                                /* adjust the new head of the chain */
+                                overflow_llist_head =
+                                    overflow_llist_head->next;
+                                table->overflow_buckets[index] =
+                                    overflow_llist_head;
+
+                                /* create a new item using node as the ref */
+                                node->next = NULL;
+                                table->items[index] = create_item(
+                                    node->item->key, node->item->value);
+
+                                free_linkedlist(node);
+
+                                return;
+                        }
+
+                        /* handle node deletion; delete inside the list */
+                        _handle_collision_delete_node(
+                            &table->overflow_buckets[index], key);
+                }
+        }
 }
 
 void
