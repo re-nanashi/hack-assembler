@@ -7,15 +7,20 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
-
 /* @brief The linked_list definition */
 typedef struct linked_list linked_list;
 struct linked_list {
     /* the hash table item */
     ht_item *item;
     linked_list *next;
-    
 };
+
+/**
+ * @brief Allocates list to memory
+ *
+ * @return a linked list 
+ */
+linked_list *allocate_list();
 
 /**
  * @brief Insert hash table item to a list
