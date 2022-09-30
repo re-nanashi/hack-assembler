@@ -34,6 +34,8 @@ struct hash_table {
 /**
  * @brief Creates a hash table item
  *
+ * @param key the key of the item
+ * @param value the value of the item
  * @return the hash table item that was created
  */
 ht_item *create_item(char *key, char *value);
