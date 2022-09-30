@@ -6,7 +6,7 @@
 #include "linked_list.h"
 
 unsigned long
-hash_function(char *str)
+_hash_function(char *str)
 {
         unsigned long i = 0;
 
@@ -28,6 +28,19 @@ create_item(char *key, char *value)
         strcpy(item->value, value);
 
         return item;
+}
+
+static linked_list **
+_create_overflow_buckets(hash_table *table)
+{
+        /* create the overflow buckets; an array of linkedlists */
+        linked_list **buckets =
+            (linked_list **)calloc(table->size, sizeof(linked_list **));
+
+        for (int i = 0; i < table->size; i++)
+                buckets[i] = NULL;
+
+        return buckets;
 }
 
 hash_table *
@@ -54,6 +67,18 @@ free_item(ht_item *item)
         free(item);
 }
 
+static void
+_free_overflow_buckets(hash_table *table)
+{
+        /* free all the overflow buckets */
+        linked_list **buckets = table->overflow_buckets;
+
+        for (int i = 0; i < table->size; i++)
+                free_linkedlist(buckets[i]);
+
+        free(buckets);
+}
+
 void
 free_table(hash_table *table)
 {
@@ -75,7 +100,7 @@ ht_insert(hash_table *table, char *key, char *value)
         ht_item *item = create_item(key, value);
 
         /* compute the index */
-        int index = hash_function(key);
+        int index = _hash_function(key);
 
         ht_item *current_item = table->items[index];
         /* if the key does not exist */
@@ -102,7 +127,7 @@ ht_insert(hash_table *table, char *key, char *value)
                 }
                 else {
                         /* TODO handle_collision function */
-                        handle_collision(table, item);
+                        handle_collision(table, index, item);
                         return;
                 }
         }
@@ -110,7 +135,7 @@ ht_insert(hash_table *table, char *key, char *value)
 
 // TODO
 void
-handle_collision(hash_table *table, ht_item *item)
+handle_collision(hash_table *table, unsigned long index, ht_item *item)
 {
 }
 
@@ -118,7 +143,7 @@ char *
 ht_search(hash_table *table, char *key)
 {
         /* search the key in the hash table */
-        int index = hash_function(key);
+        int index = _hash_function(key);
         // TODO: search the linked list
         ht_item *item = table->items[index];
 
