@@ -98,6 +98,27 @@ free_table(hash_table *table)
 }
 
 void
+_handle_collision(hash_table *table, unsigned long index, ht_item *item)
+{
+        linked_list *head = table->overflow_buckets[index];
+
+        if (head == NULL) {
+                /* create the overflow list */
+                head = allocate_list();
+                head->item = item;
+                table->overflow_buckets[index] = head;
+
+                return;
+        }
+        else {
+                /* insert to the list */
+                table->overflow_buckets[index] = linkedlist_insert(head, item);
+
+                return;
+        }
+}
+
+void
 ht_insert(hash_table *table, char *key, char *value)
 {
         /* create the hash table item*/
@@ -130,30 +151,9 @@ ht_insert(hash_table *table, char *key, char *value)
                         return;
                 }
                 else {
-                        handle_collision(table, index, item);
+                        _handle_collision(table, index, item);
                         return;
                 }
-        }
-}
-
-void
-handle_collision(hash_table *table, unsigned long index, ht_item *item)
-{
-        linked_list *head = table->overflow_buckets[index];
-
-        if (head == NULL) {
-                /* create the overflow list */
-                head = allocate_list();
-                head->item = item;
-                table->overflow_buckets[index] = head;
-
-                return;
-        }
-        else {
-                /* insert to the list */
-                table->overflow_buckets[index] = linkedlist_insert(head, item);
-
-                return;
         }
 }
 
@@ -223,50 +223,46 @@ ht_delete(hash_table *table, char *key)
         ht_item *item = table->items[index];
         linked_list *overflow_llist_head = table->overflow_buckets[index];
 
-        if (item == NULL) /* item does not exist */
+        /* item does not exist */
+        if (item == NULL) return;
+
+        /* the current item is to be deleted and no collision chain
+         * exists */
+        if (overflow_llist_head == NULL && strcmp(item->key, key) == 0) {
+                /* no collision chain; remove the item */
+                table->items[index] = NULL;
+                free_item(item);
+                table->count--;
+
                 return;
-        else {
-                /* the current item is to be deleted and no collision chain
-                 * exists */
-                if (overflow_llist_head == NULL && strcmp(item->key, key) == 0)
-                {
-                        /* no collision chain; remove the item */
-                        table->items[index] = NULL;
+        }
+        /* collision chain exist */
+        else if (overflow_llist_head != NULL) {
+                /* the item to be removed is the head */
+                if (strcmp(item->key, key) == 0) {
+                        /* remove the item; set the head as the new
+                         * item */
                         free_item(item);
-                        table->count--;
+
+                        /* create a temp node for the item */
+                        linked_list *node = overflow_llist_head;
+
+                        /* adjust the new head of the chain */
+                        overflow_llist_head = overflow_llist_head->next;
+                        table->overflow_buckets[index] = overflow_llist_head;
+
+                        /* create a new item using node as the ref */
+                        node->next = NULL;
+                        table->items[index] =
+                            create_item(node->item->key, node->item->value);
+
+                        free_linkedlist(node);
 
                         return;
                 }
-                /* collision chain exist */
-                else if (overflow_llist_head != NULL) {
-                        /* the item to be removed is the head */
-                        if (strcmp(item->key, key) == 0) {
-                                /* remove the item; set the head as the new
-                                 * item */
-                                free_item(item);
 
-                                /* create a temp node for the item */
-                                linked_list *node = overflow_llist_head;
-
-                                /* adjust the new head of the chain */
-                                overflow_llist_head =
-                                    overflow_llist_head->next;
-                                table->overflow_buckets[index] =
-                                    overflow_llist_head;
-
-                                /* create a new item using node as the ref */
-                                node->next = NULL;
-                                table->items[index] = create_item(
-                                    node->item->key, node->item->value);
-
-                                free_linkedlist(node);
-
-                                return;
-                        }
-
-                        /* handle node deletion; delete inside the list */
-                        _handle_collision_delete_node(
-                            &table->overflow_buckets[index], key);
-                }
+                /* handle node deletion; delete inside the list */
+                _handle_collision_delete_node(&table->overflow_buckets[index],
+                                              key);
         }
 }
