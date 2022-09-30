@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #include "hash_table.h"
-#include "linked_list.h"
 
 unsigned long
 _hash_function(char *str)
@@ -181,15 +180,14 @@ ht_search(hash_table *table, char *key)
 }
 
 void
-_handle_collision_delete_node(linked_list **llist, int index, char *key)
+_handle_collision_delete_node(linked_list **llist, char *key)
 {
         linked_list *current = *llist, *previous = NULL;
 
         while (current != NULL) {
                 if (strcmp(current->item->key, key) == 0) {
-                        /* the first node(head) of the collision chain*/
+                        /* the first node of the collision chain */
                         if (previous == NULL) {
-                                /* adjust the the current head to head->next */
                                 *llist = current->next;
 
                                 /* free the old node */
@@ -198,15 +196,15 @@ _handle_collision_delete_node(linked_list **llist, int index, char *key)
 
                                 return;
                         }
-                        /* the node to delete is in the list */
+                        /* node to be deleted is inside the collision chain */
                         else {
-                                /* unlink the node from the linked list*/
-                                linked_list *node = current;
+                                /* unlink the node from the linked list */
+                                linked_list *temp_node = current;
                                 previous->next = current->next;
 
-                                /* free the current node */
-                                node->next = NULL;
-                                free_linkedlist(node);
+                                /* free the old node */
+                                temp_node->next = NULL;
+                                free_linkedlist(temp_node);
 
                                 return;
                         }
@@ -271,46 +269,4 @@ ht_delete(hash_table *table, char *key)
                             &table->overflow_buckets[index], key);
                 }
         }
-}
-
-void
-print_search(hash_table *table, char *key)
-{
-        char *val;
-        if ((val = ht_search(table, key)) == NULL) {
-                printf("Key:%s does not exist\n", key);
-                return;
-        }
-        else {
-                printf("Key:%s, Value:%s\n", key, val);
-        }
-}
-
-void
-print_table(hash_table *table)
-{
-        printf("\nHash Table\n-----------\n'");
-        for (int i = 0; i < table->size; i++) {
-                // Not Null
-                if (table->items[i]) {
-                        printf("Index:%d, Key:%s, Value:%s\n", i,
-                               table->items[i]->key, table->items[i]->value);
-                }
-        }
-        printf("------------------\n\n");
-}
-
-int
-main()
-{
-        hash_table *ht = create_table(HT_CAPACITY);
-        ht_insert(ht, "1", "First address");
-        ht_insert(ht, "2", "Second address");
-        print_search(ht, "1");
-        print_search(ht, "2");
-        print_search(ht, "3");
-        print_table(ht);
-        free_table(ht);
-
-        return 0;
 }
