@@ -183,7 +183,7 @@ ht_search(hash_table *table, char *key)
 }
 
 void
-__handle_collision_delete_node(linked_list **llist, char *key)
+__handle_collision_chain_delete(linked_list **llist, char *key)
 {
         linked_list *current = *llist, *previous = NULL;
 
@@ -263,7 +263,7 @@ ht_delete(hash_table *table, char *key)
                 }
 
                 /* handle node deletion; delete inside the list */
-                __handle_collision_delete_node(&table->overflow_buckets[index],
-                                               key);
+                __handle_collision_chain_delete(
+                    &table->overflow_buckets[index], key);
         }
 }
