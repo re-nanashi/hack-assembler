@@ -5,7 +5,7 @@
 #include "hash_table.h"
 
 unsigned long
-_hash_function(char *str)
+__hash_function(char *str)
 {
         unsigned long i = 0;
 
@@ -31,7 +31,7 @@ create_item(char *key, char *value)
 }
 
 static linked_list **
-_create_overflow_buckets(hash_table *table)
+__create_overflow_buckets(hash_table *table)
 {
         /* create the overflow buckets; an array of linkedlists */
         linked_list **buckets =
@@ -51,7 +51,7 @@ create_table(int size)
 
         table->size = size;
         table->count = 0;
-        table->overflow_buckets = _create_overflow_buckets(table);
+        table->overflow_buckets = __create_overflow_buckets(table);
         table->items = (ht_item **)calloc(table->size, sizeof(ht_item *));
         for (int i = 0; i < table->size; i++)
                 table->items[i] = NULL;
@@ -69,7 +69,7 @@ free_item(ht_item *item)
 }
 
 static void
-_free_overflow_buckets(hash_table *table)
+__free_overflow_buckets(hash_table *table)
 {
         /* free all the overflow buckets */
         linked_list **buckets = table->overflow_buckets;
@@ -90,7 +90,7 @@ free_table(hash_table *table)
         }
 
         /* frees the overflow bucket and it's items */
-        _free_overflow_buckets(table);
+        __free_overflow_buckets(table);
 
         /* free the table */
         free(table->items);
@@ -98,7 +98,7 @@ free_table(hash_table *table)
 }
 
 void
-_handle_collision(hash_table *table, unsigned long index, ht_item *item)
+__handle_collision(hash_table *table, unsigned long index, ht_item *item)
 {
         linked_list *head = table->overflow_buckets[index];
 
@@ -125,7 +125,7 @@ ht_insert(hash_table *table, char *key, char *value)
         ht_item *item = create_item(key, value);
 
         /* compute the index */
-        int index = _hash_function(key);
+        int index = __hash_function(key);
 
         ht_item *current_item = table->items[index];
         /* if the key does not exist */
@@ -153,7 +153,7 @@ ht_insert(hash_table *table, char *key, char *value)
                         return;
                 }
                 else {
-                        _handle_collision(table, index, item);
+                        __handle_collision(table, index, item);
 
                         return;
                 }
@@ -164,7 +164,7 @@ char *
 ht_search(hash_table *table, char *key)
 {
         /* search the key in the hash table */
-        int index = _hash_function(key);
+        int index = __hash_function(key);
         ht_item *item = table->items[index];
         linked_list *head = table->overflow_buckets[index];
 
@@ -183,7 +183,7 @@ ht_search(hash_table *table, char *key)
 }
 
 void
-_handle_collision_delete_node(linked_list **llist, char *key)
+__handle_collision_delete_node(linked_list **llist, char *key)
 {
         linked_list *current = *llist, *previous = NULL;
 
@@ -222,7 +222,7 @@ void
 ht_delete(hash_table *table, char *key)
 {
         /* deletes an item from the table */
-        int index = _hash_function(key);
+        int index = __hash_function(key);
         ht_item *item = table->items[index];
         linked_list *overflow_llist_head = table->overflow_buckets[index];
 
@@ -263,7 +263,7 @@ ht_delete(hash_table *table, char *key)
                 }
 
                 /* handle node deletion; delete inside the list */
-                _handle_collision_delete_node(&table->overflow_buckets[index],
-                                              key);
+                __handle_collision_delete_node(&table->overflow_buckets[index],
+                                               key);
         }
 }
