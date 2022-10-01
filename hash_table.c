@@ -134,6 +134,7 @@ ht_insert(hash_table *table, char *key, char *value)
                 if (table->count == table->size) {
                         printf("Error: Hash Table is full.\n");
                         free_item(item);
+
                         return;
                 }
 
@@ -148,10 +149,12 @@ ht_insert(hash_table *table, char *key, char *value)
                         current_item->value =
                             (char *)malloc(strlen(value) + 1);
                         strcpy(current_item->value, value);
+
                         return;
                 }
                 else {
                         _handle_collision(table, index, item);
+
                         return;
                 }
         }
@@ -226,8 +229,7 @@ ht_delete(hash_table *table, char *key)
         /* item does not exist */
         if (item == NULL) return;
 
-        /* the current item is to be deleted and no collision chain
-         * exists */
+        /* the current item is to be deleted and no collision chain exists */
         if (overflow_llist_head == NULL && strcmp(item->key, key) == 0) {
                 /* no collision chain; remove the item */
                 table->items[index] = NULL;
@@ -240,8 +242,7 @@ ht_delete(hash_table *table, char *key)
         else if (overflow_llist_head != NULL) {
                 /* the item to be removed is the head */
                 if (strcmp(item->key, key) == 0) {
-                        /* remove the item; set the head as the new
-                         * item */
+                        /* remove the item; set the head as the new item */
                         free_item(item);
 
                         /* create a temp node for the item */
