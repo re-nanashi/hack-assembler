@@ -4,7 +4,7 @@
 
 #include "hash_table.h"
 
-unsigned long
+static unsigned long
 __hash_function(char *str)
 {
         unsigned long i = 0;
@@ -97,7 +97,7 @@ free_table(hash_table *table)
         free(table);
 }
 
-void
+static void
 __handle_collision(hash_table *table, unsigned long index, ht_item *item)
 {
         linked_list *head = table->overflow_buckets[index];
@@ -182,7 +182,7 @@ ht_search(hash_table *table, char *key)
         return NULL;
 }
 
-void
+static void
 __handle_collision_chain_delete(linked_list **llist, char *key)
 {
         linked_list *current = *llist, *previous = NULL;
