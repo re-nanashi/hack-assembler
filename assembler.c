@@ -1,70 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "hash_table.h"
 
-void
-print_search(hash_table *table, char *key)
+#define C_BUFFER_SIZE 1000
+
+enum command_type { A_COMMAND, C_COMMAND, L_COMMAND };
+
+/*NOTE: Do not include L_COMMAND for now */
+enum command_type
+parse_command_type()
 {
-        char *val;
-        if ((val = ht_search(table, key)) == NULL) {
-                printf("%s does not exist\n", key);
-                return;
-        }
-        else {
-                printf("Key:%s, Value:%s\n", key, val);
-        }
 }
 
-void
-print_table(hash_table *table)
+static void
+__assemble(FILE **output_f, const FILE *const input_f)
 {
-        printf("\n-------------------\n");
-        for (int i = 0; i < table->size; i++) {
-                if (table->items[i]) {
-                        printf("Index:%d, Key:%s, Value:%s", i,
-                               table->items[i]->key, table->items[i]->value);
-                        if (table->overflow_buckets[i]) {
-                                printf(" => Overflow Bucket => ");
-                                linked_list *head = table->overflow_buckets[i];
-                                while (head) {
-                                        printf("Key:%s, Value:%s ",
-                                               head->item->key,
-                                               head->item->value);
-                                        head = head->next;
-                                }
-                        }
-                        printf("\n");
-                }
+        if (output_f == NULL || input_f == NULL) {
+                exit(-1);
         }
-        printf("-------------------\n");
-}
 
-void
-hash_table_sample_code(void)
-{
-        {
-                hash_table *ht = create_table(HT_CAPACITY);
-                ht_insert(ht, "1", "First address");
-                ht_insert(ht, "2", "Second address");
-                ht_insert(ht, "Hel", "Third address");
-                ht_insert(ht, "Cau", "Fourth address");
-                print_search(ht, "1");
-                print_search(ht, "2");
-                print_search(ht, "3");
-                print_search(ht, "Hel");
-                print_search(ht, "Cau"); // Collision!
-                print_table(ht);
-                ht_delete(ht, "1");
-                ht_delete(ht, "Cau");
-                print_table(ht);
-                free_table(ht);
+        const FILE *in_f = input_f;
+        FILE *out_f = *output_f;
+        if (in_f == NULL) {
+                printf("Error: Could not open file.\n");
+                exit(-1);
         }
-}
 
-void
-__assemble(FILE **output_f, FILE **input_f)
-{
+        char asm_command_buffer[C_BUFFER_SIZE + 1];
+        /* loop while file stream has more code to parse */
+        while (fgets(asm_command_buffer, C_BUFFER_SIZE + 1, (FILE *)in_f)
+               != NULL) {
+                /* asm_command_buffer is the current code */
+                /* TODO: We have to parse the buffer */
+                fprintf(out_f, "%s", asm_command_buffer);
+        }
 }
 
 int
@@ -83,12 +54,13 @@ main(int argc, char **argv)
          *       or have the option to enter the file name of the output
          *       with the -o flag
          */
-        FILE *asm_input_f = fopen(argv[1], "r");
+        const FILE *const asm_input_f = fopen(argv[1], "r");
         FILE *hack_output_f = fopen("output.hack", "w");
 
-        __assemble(&asm_input_f, &hack_output_f);
+        /* run assembler */
+        __assemble(&hack_output_f, asm_input_f);
 
-        fclose(asm_input_f);
+        fclose((FILE *)asm_input_f);
         fclose(hack_output_f);
 
         return 0;
