@@ -32,8 +32,8 @@ struct token {
 bool
 __is_delimiter(char ch)
 {
-        if (ch == ' ' || ch == '=' || ch == ';' || ch == '+' || ch == '-'
-            || ch == '(' || ch == ')' || ch == '&' || ch == '|')
+        if (ch == ' ' || ch == '@' || ch == '=' || ch == ';' || ch == '+'
+            || ch == '-' || ch == '(' || ch == ')' || ch == '&' || ch == '|')
                 return true;
 
         return false;
@@ -42,8 +42,8 @@ __is_delimiter(char ch)
 bool
 __is_operator(char ch)
 {
-        if (ch == '+' || ch == '-' || ch == '=' || ch == ';' || ch == '!'
-            || ch == '&' || ch == '|')
+        if (ch == '@' || ch == '+' || ch == '-' || ch == '=' || ch == ';'
+            || ch == '!' || ch == '&' || ch == '|')
                 return true;
 
         return false;
@@ -105,4 +105,91 @@ __extract_substr(char *str, int left, int right)
         substr[right - left + 1] = '\0';
 
         return substr;
+}
+
+bool
+__at_eoc(struct token const *cur)
+{
+        return TK_EOC == cur->kind;
+}
+
+bool
+__at_eof(struct token const *cur)
+{
+        return TK_EOF == cur->kind;
+}
+
+struct token *
+allocate_token(void)
+{
+        struct token *tok = (struct token *)malloc(sizeof(struct token));
+        return tok;
+}
+
+struct token *
+new_token(token_kind tk_kind, struct token *cur, char *str)
+{
+        struct token *tok = calloc(1, sizeof(struct token));
+        tok->str = (char *)malloc(strlen(str) + 1);
+
+        tok->kind = tk_kind;
+        strcpy(tok->str, str);
+        cur->next = tok;
+
+        return tok;
+}
+
+struct token *
+tokenize(char *command_buffer)
+{
+        struct token *head = (struct token *)malloc(sizeof(struct token));
+        head->next = NULL;
+        struct token *curr = head;
+
+        int str_l = 0, str_r = 0;
+        int cb_len = strlen(command_buffer);
+        while (str_r <= cb_len && str_l <= str_r) {
+                if (__is_delimiter(command_buffer[str_r]) == false) str_r++;
+
+                if (__is_delimiter(command_buffer[str_r]) == true
+                    && str_l == str_r) {
+                        if (__is_operator(command_buffer[str_r]) == true)
+                                curr = new_token(TK_OPERATOR, curr,
+                                                 &command_buffer[str_r]);
+                        str_r++;
+                        str_l = str_r;
+                }
+
+                if (__is_delimiter(command_buffer[str_r]) == true
+                        && str_l != str_r
+                    || (str_r == cb_len && str_l != str_r))
+                {
+
+                        char *substr =
+                            __extract_substr(command_buffer, str_l, str_r - 1);
+
+                        if (__is_keyword(substr) == true)
+                                curr = new_token(TK_RESERVED, curr, substr);
+
+                        else if (__is_integer(substr) == true) {
+                                curr = new_token(TK_INT, curr, substr);
+                                curr->val = strtol(substr, &substr, 10);
+                        }
+
+                        else if (__is_valid_id(substr) == true
+                                 && __is_delimiter(command_buffer[str_r - 1])
+                                        == false)
+                                curr = new_token(TK_ID, curr, substr);
+
+                        else if (__is_valid_id(substr) == false
+                                 && __is_delimiter(command_buffer[str_r - 1])
+                                        == false)
+                        {
+                                printf("Error: Not a valid identifier");
+                                exit(-1);
+                        }
+
+                        // TODO: condition for other tokens
+                }
+        }
 }
