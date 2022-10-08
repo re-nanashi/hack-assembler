@@ -11,7 +11,8 @@ bool
 __is_delimiter(char ch)
 {
         if (ch == ' ' || ch == '@' || ch == '=' || ch == ';' || ch == '+'
-            || ch == '-' || ch == '(' || ch == ')' || ch == '&' || ch == '|')
+            || ch == '-' || ch == '(' || ch == ')' || ch == '&' || ch == '|'
+            || ch == '\n' || ch == '\0')
                 return true;
 
         return false;
@@ -30,6 +31,7 @@ __is_operator(char ch)
 bool
 __is_valid_id(char *str)
 {
+        /* return false if a digit is used to begin an identifier */
         if (str[0] == '0' || str[0] == '1' || str[0] == '2' || str[0] == '3'
             || str[0] == '4' || str[0] == '5' || str[0] == '6' || str[0] == '7'
             || str[0] == '8' || str[0] == '9'
@@ -72,13 +74,6 @@ __is_integer(char *str)
         return true;
 }
 
-bool
-__is_eoc(char *str)
-{
-        /* check if the current string buffer is a new line */
-        return strcmp(str, "\n") == 0;
-}
-
 char *
 __extract_substr(char *str, int left, int right)
 {
@@ -98,22 +93,10 @@ __extract_substr(char *str, int left, int right)
         return substr;
 }
 
-bool
-at_eoc(struct token const *cur)
-{
-        return TK_EOC == cur->kind;
-}
-
-bool
-at_eof(struct token const *cur)
-{
-        return TK_EOF == cur->kind;
-}
-
 struct token *
 allocate_token(void)
 {
-        struct token *tok = (struct token *)malloc(sizeof(struct token));
+        struct token *tok = (struct token *)calloc(1, sizeof(struct token));
 
         /* check allocation */
         if (tok == NULL) {
@@ -127,14 +110,9 @@ allocate_token(void)
 struct token *
 new_token(token_kind tk_kind, struct token *cur, char *str)
 {
-        struct token *tok = calloc(1, sizeof(struct token));
+        /* allocate to memory */
+        struct token *tok = allocate_token();
         tok->str = (char *)malloc(strlen(str) + 1);
-
-        /* check allocation */
-        if (tok == NULL || tok->str == NULL) {
-                printf("Error: Encountered an allocation error.\n");
-                exit(-1);
-        }
 
         tok->kind = tk_kind;
         strcpy(tok->str, str);
@@ -146,16 +124,10 @@ new_token(token_kind tk_kind, struct token *cur, char *str)
 struct token *
 tokenize(char *command_buffer)
 {
-        struct token *head = (struct token *)malloc(sizeof(struct token));
-
-        /* check allocation */
-        if (head == NULL) {
-                printf("Error: Encountered an allocation error.\n");
-                exit(-1);
-        }
-
-        head->next = NULL;
-        struct token *curr = head;
+        /* dummy head */
+        struct token head;
+        head.next = NULL;
+        struct token *curr = &head;
 
         int str_l = 0, str_r = 0;
         int cb_len = strlen(command_buffer);
@@ -165,9 +137,13 @@ tokenize(char *command_buffer)
 
                 if (__is_delimiter(command_buffer[str_r]) == true
                     && str_l == str_r) {
-                        if (__is_operator(command_buffer[str_r]) == true)
-                                curr = new_token(TK_OPERATOR, curr,
-                                                 &command_buffer[str_r]);
+                        if (__is_operator(command_buffer[str_r]) == true) {
+                                /* convert the operator char to string */
+                                char str[2] = "\0";
+                                str[0] = command_buffer[str_r];
+                                curr = new_token(TK_OPERATOR, curr, str);
+                        }
+
                         str_r++;
                         str_l = str_r;
                 }
@@ -187,9 +163,6 @@ tokenize(char *command_buffer)
                                 curr->val = strtol(substr, &substr, 10);
                         }
 
-                        else if (__is_eoc(substr) == true)
-                                curr = new_token(TK_EOC, curr, substr);
-
                         else if (__is_valid_id(substr) == true
                                  && __is_delimiter(command_buffer[str_r - 1])
                                         == false)
@@ -208,13 +181,22 @@ tokenize(char *command_buffer)
                                 printf("Error: Cannot tokenize string.\n");
                                 exit(-1);
                         }
+
+                        str_l = str_r;
                 }
         }
 
-        /* link an EOF token to curr->next */
-        new_token(TK_EOF, curr, "");
+        /* link an EOC token at the end */
+        new_token(TK_EOC, curr, "");
 
-        return head->next;
+        return head.next;
+}
+
+bool
+at_eoc(struct token const *cur)
+{
+        printf("CURRENT TOKEN ADDRESS: %p\n", cur);
+        return TK_EOC == cur->kind;
 }
 
 token_kind
@@ -224,12 +206,60 @@ peak(struct token const *tok)
 }
 
 void
-consume(struct token *tok)
+consume(struct token **tok)
 {
-        struct token *tmp_token = tok;
-        tok = tok->next;
+        if (*tok == NULL) {
+                printf("Error: Cannot consume NULL token.\n");
+                return;
+        }
 
-        tmp_token->next = NULL;
-        free(tmp_token->str);
-        free(tmp_token);
+        struct token *tmp = *tok;
+        *tok = tmp->next;
+
+        tmp->next = NULL;
+        free(tmp->str);
+        free(tmp);
+}
+
+const char *token_names[] = { "TK_RESERVED", "TK_ID", "TK_OPERATOR", "TK_INT",
+                              "TK_EOC" };
+
+int
+main(int argc, char **argv)
+{
+
+        if (argc != 2) {
+                printf("Error: Number of parameters.");
+                return 1;
+        }
+
+        const FILE *const asm_input_f = fopen(argv[1], "r");
+        FILE *hack_output_f = fopen("output.hack", "w");
+
+        char asm_command_buffer[1000 + 1];
+        struct token *tok = allocate_token();
+
+        while (fgets(asm_command_buffer, 1000 + 1, (FILE *)asm_input_f)
+               != NULL) {
+                /* asm_command_buffer is the current code until eoc */
+                /* TODO: We have to parse the buffer */
+                /* strcpy(string_output, parse(in)) */
+                tok = tokenize(asm_command_buffer);
+
+                while (!at_eoc(tok)) {
+                        printf("Current token kind: %s\n",
+                               token_names[tok->kind]);
+                        printf("Current token str: %s\n", tok->str);
+                        printf("Next token address: %p\n", tok->next);
+                        consume(&tok);
+                        printf("New token address: %p\n", tok);
+                }
+                printf("EOC token kind?: %s\n", token_names[tok->kind]);
+                consume(&tok);
+
+                // fprintf(out_f, "%s", asm_command_buffer);
+        }
+
+        fclose((FILE *)asm_input_f);
+        fclose(hack_output_f);
 }
