@@ -8,13 +8,13 @@
 #define LEXER_H
 
 /* @brief Kinds of token */
-typedef enum {
-	TK_RESERVED,
-    TK_ID,
-    TK_OPERATOR,
-	TK_INT,
-    TK_EOC,
-	TK_EOF,
+typedef enum { 
+    TK_RESERVED, 
+    TK_ID, 
+    TK_OPERATOR, 
+    TK_INT, 
+    TK_EOC, 
+    TK_EOF, 
 } token_kind ;
 
 /* @brief Token struct */
