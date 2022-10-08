@@ -25,14 +25,6 @@ struct token {
 };
 
 /**
- * @brief Checks whether the token is an end-of-command
- *
- * @param cur the current token
- * @return true if the current token's kind is TK_EOC
- */
-bool at_eoc(struct token const *cur);
-
-/**
  * @brief Allocate a token into memory
  *
  * @return the allocated token's address
@@ -58,6 +50,14 @@ struct token *new_token(token_kind tk_kind, struct token *cur, char *str);
 struct token *tokenize(char *command_buffer);
 
 /**
+ * @brief Checks whether the token is an end-of-command
+ *
+ * @param cur the current token
+ * @return true if the current token's kind is TK_EOC
+ */
+bool at_eoc(struct token const *cur);
+
+/**
  * @brief Peek the next token's kind
  *
  * @param tok the current token
@@ -70,6 +70,6 @@ token_kind peak(struct token const *tok);
  *
  * @param tok the current token
  */
-void consume(struct token *tok);
+void consume(struct token **tok);
 
 #endif /* LEXER_H */
