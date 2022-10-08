@@ -14,7 +14,6 @@ typedef enum {
     TK_OPERATOR, 
     TK_INT, 
     TK_EOC, 
-    TK_EOF, 
 } token_kind ;
 
 /* @brief Token struct */
@@ -32,14 +31,6 @@ struct token {
  * @return true if the current token's kind is TK_EOC
  */
 bool at_eoc(struct token const *cur);
-
-/**
- * @brief Checks whether the token is an end-of-file
- *
- * @param cur the current token
- * @return true if the current token's kind is TK_EOF
- */
-bool at_eof(struct token const *cur);
 
 /**
  * @brief Allocate a token into memory
