@@ -20,16 +20,16 @@ gen_dest_bit(char *mnemonic)
 char *
 gen_jump_bit(char *mnemonic)
 {
-        hash_table *dest_table = create_table(7);
-        ht_insert(dest_table, "JGT", "001");
-        ht_insert(dest_table, "JEQ", "010");
-        ht_insert(dest_table, "JGE", "011");
-        ht_insert(dest_table, "JLT", "100");
-        ht_insert(dest_table, "JNE", "101");
-        ht_insert(dest_table, "JLE", "110");
-        ht_insert(dest_table, "JMP", "111");
+        hash_table *jump_table = create_table(7);
+        ht_insert(jump_table, "JGT", "001");
+        ht_insert(jump_table, "JEQ", "010");
+        ht_insert(jump_table, "JGE", "011");
+        ht_insert(jump_table, "JLT", "100");
+        ht_insert(jump_table, "JNE", "101");
+        ht_insert(jump_table, "JLE", "110");
+        ht_insert(jump_table, "JMP", "111");
 
-        return ht_search(dest_table, mnemonic);
+        return ht_search(jump_table, mnemonic);
 }
 
 char *
