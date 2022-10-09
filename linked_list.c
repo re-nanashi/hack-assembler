@@ -24,6 +24,7 @@ linkedlist_insert(linked_list *list, ht_item *item)
                 list = head;
                 return list;
         }
+
         else if (list->next == NULL) {
                 linked_list *node = allocate_list();
                 node->item = item;
