@@ -195,7 +195,6 @@ tokenize(char *command_buffer)
 bool
 at_eoc(struct token const *cur)
 {
-        printf("CURRENT TOKEN ADDRESS: %p\n", cur);
         return TK_EOC == cur->kind;
 }
 
@@ -219,47 +218,4 @@ consume(struct token **tok)
         tmp->next = NULL;
         free(tmp->str);
         free(tmp);
-}
-
-const char *token_names[] = { "TK_RESERVED", "TK_ID", "TK_OPERATOR", "TK_INT",
-                              "TK_EOC" };
-
-int
-main(int argc, char **argv)
-{
-
-        if (argc != 2) {
-                printf("Error: Number of parameters.");
-                return 1;
-        }
-
-        const FILE *const asm_input_f = fopen(argv[1], "r");
-        FILE *hack_output_f = fopen("output.hack", "w");
-
-        char asm_command_buffer[1000 + 1];
-        struct token *tok = allocate_token();
-
-        while (fgets(asm_command_buffer, 1000 + 1, (FILE *)asm_input_f)
-               != NULL) {
-                /* asm_command_buffer is the current code until eoc */
-                /* TODO: We have to parse the buffer */
-                /* strcpy(string_output, parse(in)) */
-                tok = tokenize(asm_command_buffer);
-
-                while (!at_eoc(tok)) {
-                        printf("Current token kind: %s\n",
-                               token_names[tok->kind]);
-                        printf("Current token str: %s\n", tok->str);
-                        printf("Next token address: %p\n", tok->next);
-                        consume(&tok);
-                        printf("New token address: %p\n", tok);
-                }
-                printf("EOC token kind?: %s\n", token_names[tok->kind]);
-                consume(&tok);
-
-                // fprintf(out_f, "%s", asm_command_buffer);
-        }
-
-        fclose((FILE *)asm_input_f);
-        fclose(hack_output_f);
 }
