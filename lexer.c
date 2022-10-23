@@ -22,7 +22,7 @@ bool
 __is_operator(char ch)
 {
         if (ch == '@' || ch == '+' || ch == '-' || ch == '=' || ch == ';'
-            || ch == '!' || ch == '&' || ch == '|')
+            || ch == '!' || ch == '&' || ch == '|' || ch == '(' || ch == ')')
                 return true;
 
         return false;
@@ -198,14 +198,18 @@ at_eoc(struct token const *cur)
         return TK_EOC == cur->kind;
 }
 
-token_kind
-peak(struct token const *tok)
+struct token *
+tk_peak(struct token const *tok)
 {
-        return tok->next->kind;
+        if (tok->next == NULL) {
+                return NULL;
+        }
+
+        return tok->next;
 }
 
 void
-consume(struct token **tok)
+tk_consume(struct token **tok)
 {
         if (*tok == NULL) {
                 printf("Error: Cannot consume NULL token.\n");
@@ -218,4 +222,13 @@ consume(struct token **tok)
         tmp->next = NULL;
         free(tmp->str);
         free(tmp);
+}
+
+void
+free_tk_stream(struct token **tok)
+{
+        while (!at_eoc(*tok)) {
+                tk_consume(&(*tok));
+        }
+        tk_consume(&(*tok));
 }
