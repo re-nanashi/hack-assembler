@@ -7,7 +7,8 @@
 
 #include "lexer.h"
 
-bool
+/* checks if character is a delimeter */
+static bool
 __is_delimiter(char ch)
 {
         if (ch == ' ' || ch == '@' || ch == '=' || ch == ';' || ch == '+'
@@ -18,7 +19,8 @@ __is_delimiter(char ch)
         return false;
 }
 
-bool
+/* checks if character is an operator */
+static bool
 __is_operator(char ch)
 {
         if (ch == '@' || ch == '+' || ch == '-' || ch == '=' || ch == ';'
@@ -28,7 +30,9 @@ __is_operator(char ch)
         return false;
 }
 
-bool
+/* checks if string is a valid identifier by checking if an integer is not used
+ * as the starting char of the variable */
+static bool
 __is_valid_id(char *str)
 {
         /* return false if a digit is used to begin an identifier */
@@ -41,7 +45,8 @@ __is_valid_id(char *str)
         return true;
 }
 
-bool
+/* checks if string is a reserved keyword */
+static bool
 __is_keyword(char *str)
 {
         if (!strcmp(str, "M") || !strcmp(str, "D") || !strcmp(str, "MD")
@@ -55,7 +60,8 @@ __is_keyword(char *str)
         return false;
 }
 
-bool
+/* checks if input string is a number */
+static bool
 __is_integer(char *str)
 {
         int i;
@@ -74,7 +80,9 @@ __is_integer(char *str)
         return true;
 }
 
-char *
+/* extracts the substring from left index to right index from the
+ * string input */
+static char *
 __extract_substr(char *str, int left, int right)
 {
         int i;
@@ -148,10 +156,14 @@ tokenize(char *command_buffer)
                         str_l = str_r;
                 }
 
+                /* the current iterator points to a char that is not an
+                 * operator or delimeter */
                 if (__is_delimiter(command_buffer[str_r]) == true
                         && str_l != str_r
                     || (str_r == cb_len && str_l != str_r))
                 {
+                        /* extracts a substring that is not an operator then
+                         * determines the token kind */
                         char *substr =
                             __extract_substr(command_buffer, str_l, str_r - 1);
 
@@ -219,6 +231,7 @@ tk_consume(struct token **tok)
         struct token *tmp = *tok;
         *tok = tmp->next;
 
+        /* frees the token from heap */
         tmp->next = NULL;
         free(tmp->str);
         free(tmp);
