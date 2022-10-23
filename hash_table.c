@@ -33,7 +33,7 @@ create_item(char *key, char *value)
 
 /* creates overflow buckets for collision handling */
 static linked_list **
-__create_overflow_buckets(hash_table *table)
+__create_overflow_buckets(struct hash_table *table)
 {
         /* create the overflow buckets; an array of linkedlists */
         linked_list **buckets =
@@ -45,11 +45,12 @@ __create_overflow_buckets(hash_table *table)
         return buckets;
 }
 
-hash_table *
+struct hash_table *
 create_table(int size)
 {
         /* creates a new hash_table */
-        hash_table *table = (hash_table *)malloc(sizeof(hash_table));
+        struct hash_table *table =
+            (struct hash_table *)malloc(sizeof(struct hash_table));
 
         table->size = size;
         table->count = 0;
@@ -72,7 +73,7 @@ free_item(ht_item *item)
 
 /* frees overflow buckets list */
 static void
-__free_overflow_buckets(hash_table *table)
+__free_overflow_buckets(struct hash_table *table)
 {
         /* free all the overflow buckets */
         linked_list **buckets = table->overflow_buckets;
@@ -84,7 +85,7 @@ __free_overflow_buckets(hash_table *table)
 }
 
 void
-free_table(hash_table *table)
+free_table(struct hash_table *table)
 {
         /* frees the items within the hash_table */
         for (int i = 0; i < table->size; i++) {
@@ -102,7 +103,9 @@ free_table(hash_table *table)
 
 /* handles collision for duplicate hash key */
 static void
-__handle_collision(hash_table *table, unsigned long index, ht_item *item)
+__handle_collision(struct hash_table *table,
+                   unsigned long index,
+                   ht_item *item)
 {
         linked_list *head = table->overflow_buckets[index];
 
@@ -123,9 +126,9 @@ __handle_collision(hash_table *table, unsigned long index, ht_item *item)
 }
 
 void
-ht_insert(hash_table *table, char *key, char *value)
+ht_insert(struct hash_table *table, char *key, char *value)
 {
-        /* create the hash table item*/
+        /* create the hash table item */
         ht_item *item = create_item(key, value);
 
         /* compute the index */
@@ -165,7 +168,7 @@ ht_insert(hash_table *table, char *key, char *value)
 }
 
 char *
-ht_search(hash_table *table, char *key)
+ht_search(struct hash_table *table, char *key)
 {
         /* search the key in the hash table */
         int index = __hash_function(key);
@@ -224,7 +227,7 @@ __handle_collision_chain_delete(linked_list **llist, char *key)
 }
 
 void
-ht_delete(hash_table *table, char *key)
+ht_delete(struct hash_table *table, char *key)
 {
         /* deletes an item from the table */
         int index = __hash_function(key);
