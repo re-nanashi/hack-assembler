@@ -18,9 +18,13 @@ typedef enum {
 
 /* @brief Token struct */
 struct token {
+    /* the kind of the current token */
 	token_kind kind;
+    /* the proceeding token */
 	struct token *next;
+    /* the string value of the token */
 	char *str;
+    /* the integer value of the token if TK_INT */
 	int val;
 };
 
@@ -58,18 +62,25 @@ struct token *tokenize(char *command_buffer);
 bool at_eoc(struct token const *cur);
 
 /**
- * @brief Peek the next token's kind
+ * @brief Peek the next token
  *
  * @param tok the current token
- * @return the current token's next token's kind
+ * @return the current token's next token
  */
-token_kind peak(struct token const *tok);
+struct token *tk_peak(struct token const *tok);
 
 /**
  * @brief Consume the current token
  *
  * @param tok the current token
  */
-void consume(struct token **tok);
+void tk_consume(struct token **tok);
+
+/**
+ * @brief Frees the token stream
+ *
+ * @param tok the head of token stream
+ */
+void free_tk_stream(struct token **tok); 
 
 #endif /* LEXER_H */
