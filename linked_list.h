@@ -14,8 +14,8 @@ struct ht_item;
 /* @brief The linked_list definition */
 struct linked_list {
     /* the hash table item */
-    ht_item *item;
-    linked_list *next;
+    struct ht_item *item;
+    struct linked_list *next;
 };
 
 /**
@@ -32,7 +32,7 @@ struct linked_list *allocate_list();
  * @param ht_item the hash table item to be inserted
  * @return the linked list with the added node
  */
-struct linked_list *linkedlist_insert(struct linked_list *list, ht_item *item);
+struct linked_list *linkedlist_insert(struct linked_list *list, struct ht_item *item);
 
 /**
  * @brief Removes the head hash table item node from the list
