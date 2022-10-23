@@ -4,6 +4,7 @@
 
 #include "hash_table.h"
 
+/* generates hash number */
 static unsigned long
 __hash_function(char *str)
 {
@@ -30,6 +31,7 @@ create_item(char *key, char *value)
         return item;
 }
 
+/* creates overflow buckets for collision handling */
 static linked_list **
 __create_overflow_buckets(hash_table *table)
 {
@@ -68,6 +70,7 @@ free_item(ht_item *item)
         free(item);
 }
 
+/* frees overflow buckets list */
 static void
 __free_overflow_buckets(hash_table *table)
 {
@@ -97,6 +100,7 @@ free_table(hash_table *table)
         free(table);
 }
 
+/* handles collision for duplicate hash key */
 static void
 __handle_collision(hash_table *table, unsigned long index, ht_item *item)
 {
@@ -182,6 +186,7 @@ ht_search(hash_table *table, char *key)
         return NULL;
 }
 
+/* handles deletion of key inside overflow_buckets list */
 static void
 __handle_collision_chain_delete(linked_list **llist, char *key)
 {
