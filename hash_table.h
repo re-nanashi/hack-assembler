@@ -16,7 +16,9 @@
 /* @brief The hash table item definiton */
 typedef struct ht_item ht_item;
 struct ht_item {
+        /* hash table item key string */
         char *key;
+        /* hash table item value string */
         char *value;
 };
 
@@ -27,7 +29,9 @@ struct hash_table {
         ht_item **items;
         /* a linked list that handles index collision */
         linked_list **overflow_buckets;
+        /* size of the hash table */
         int size;
+        /* current item ht_item count inside hash table */
         int count;
 };
 
