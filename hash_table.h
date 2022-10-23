@@ -24,9 +24,9 @@ struct ht_item {
 /* @brief The hash table definiton */
 struct hash_table {
         /* array of pointers to items */
-        ht_item **items;
+        struct ht_item **items;
         /* a linked list that handles index collision */
-        linked_list **overflow_buckets;
+        struct linked_list **overflow_buckets;
         /* size of the hash table */
         int size;
         /* current item ht_item count inside hash table */
