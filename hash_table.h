@@ -14,7 +14,6 @@
 #define HT_CAPACITY 50000
 
 /* @brief The hash table item definiton */
-typedef struct ht_item ht_item;
 struct ht_item {
         /* hash table item key string */
         char *key;
@@ -23,7 +22,6 @@ struct ht_item {
 };
 
 /* @brief The hash table definiton */
-typedef struct hash_table hash_table;
 struct hash_table {
         /* array of pointers to items */
         ht_item **items;
@@ -42,7 +40,7 @@ struct hash_table {
  * @param value the value of the item
  * @return the hash table item that was created
  */
-ht_item *create_item(char *key, char *value);
+struct ht_item *create_item(char *key, char *value);
 
 /**
  * @brief Initializes a hash table 
@@ -50,21 +48,21 @@ ht_item *create_item(char *key, char *value);
  * @param size the size of the hash table to be created
  * @return the hash table that was created
  */
-hash_table *create_table(int size);
+struct hash_table *create_table(int size);
 
 /**
  * @brief Frees the hash table item from memory
  *
  * @param item the item be freed from memory
  */
-void free_item(ht_item *item);
+void free_item(struct ht_item *item);
 
 /**
  * @brief Frees the hash table from memory
  *
  * @param table the table to be freed from memory
  */
-void free_table(hash_table *table);
+void free_table(struct hash_table *table);
 
 /**
  * @brief Inserts the key and value to a hash table
@@ -76,7 +74,7 @@ void free_table(hash_table *table);
  * @param key the key of the item to insert to the table
  * @param value the value of the item to be insert
  */
-void ht_insert(hash_table *table, char *key, char *value);
+void ht_insert(struct hash_table *table, char *key, char *value);
 
 /**
  * @brief Searches the hash table using a key
@@ -87,7 +85,7 @@ void ht_insert(hash_table *table, char *key, char *value);
  * @param key the key to search
  * @return the item with the given key
  */
-char *ht_search(hash_table *table, char *key);
+char *ht_search(struct hash_table *table, char *key);
 
 /**
  * @brief Deletes an item inside the table given a key
@@ -95,6 +93,6 @@ char *ht_search(hash_table *table, char *key);
  * @param table the table to be deleted from
  * @param key the key to delete
  */
-void ht_delete(hash_table *table, char *key);
+void ht_delete(struct hash_table *table, char *key);
 
 #endif /* HASH_TABLE_H */
