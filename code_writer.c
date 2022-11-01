@@ -5,7 +5,7 @@
 char *
 gen_dest_bit(char *mnemonic)
 {
-        hash_table *dest_table = create_table(7);
+        struct hash_table *dest_table = create_table(7);
         ht_insert(dest_table, "M", "001");
         ht_insert(dest_table, "D", "010");
         ht_insert(dest_table, "MD", "011");
@@ -20,7 +20,7 @@ gen_dest_bit(char *mnemonic)
 char *
 gen_jump_bit(char *mnemonic)
 {
-        hash_table *jump_table = create_table(7);
+        struct hash_table *jump_table = create_table(7);
         ht_insert(jump_table, "JGT", "001");
         ht_insert(jump_table, "JEQ", "010");
         ht_insert(jump_table, "JGE", "011");

@@ -14,6 +14,7 @@ clean:
 	-rm *.o
 	-rm *.a
 	-rm ./*.o
+	-rm new_core
 
 lint: 
 	clang-tidy ./*.c ./*.h
