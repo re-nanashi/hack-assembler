@@ -1,0 +1,163 @@
+#CURRENT TODO: 
+#TOKEN
+#Lexer << STUDY ABOUT THIS
+#Parser
+#SymbolTable << CREATE A HASH_TABLE FIRST
+#CodeModule - OUTPUT the bit code file from a C_COMMAND
+
+#CHECK IF IDENTICAL
+##https://www.geeksforgeeks.org/check-whether-the-two-binary-search-trees-are-identical-or-not/
+
+#TOKENS
+    RESERVED
+        'A'
+        'M'
+        'D'
+
+    RESERVED_JMP 
+        NULL
+        'JGT' 
+        'JEQ' 
+        'JGE' 
+        'JLT' 
+        'JNE' 
+        'JLE' 
+        'JMP'
+
+    RESERVED_DEST
+        NULL
+        'MD'
+        'AM'
+        'AD'
+        'AMD'
+
+// internal nodes
+    >OPERATORS
+        '+'                     // Can only be used RESERVED x RESERVED
+        '-' 
+        '!' 
+        '&'
+        '|'
+    >TK_A_OP
+    >TK_EQUALS
+    ???L_SYMBOL || LPAREN
+
+#OPERATOR PRECEDENCE
+    >OPERATORS
+        '+' 
+        '-' 
+        '!' 
+        '&'
+        '|'
+        '@'
+        '='
+        ';'
+#EXAMPLE OF A COMMAND
+    1. @a_symbol
+        VISUAL REPRESENTATION: 
+                A_OP
+                / \
+            NULL   symbol
+
+    2. @integer
+        VISUAL REPRESENTATION: 
+                A_OP
+                / \
+            NULL   integer
+
+#EXAMPLE OF L COMMAND
+    1. (L_SYMBOL)
+        VISUAL REPRESENTATION: 
+             L_SYMBOL
+              /    \
+         LPAREN    RPAREN
+        
+
+#EXAMPLE OF C COMMAND
+    COMP:  
+        1. 0
+        2. 1
+        3. RESERVED
+        4. OPERATOR 1
+        5. OPERATOR RESERVED
+        6. RESERVED OPERATOR 1
+        7. RESERVED OPERATOR RESERVED
+
+    1. RESERVED = COMP ; RESERVED_JMP
+    2. RESERVED_DEST = COMP ; RESERVED_JMP
+        VISUAL REPRESENTATION: 
+                     ;
+                    / \
+                   =   RESERVED_JMP
+                  / \
+          RESERVED  COMP
+                     |
+                     OP
+                    / \
+             RESERVED RESERVED
+
+
+    3. RESERVED_DEST = COMP (;)NULL
+        VISUAL REPRESENTATION: 
+                    =
+                   / \
+      RESERVED_DEST  COMP
+                       | 
+                       OP
+                      / \
+               RESERVED RESERVED
+
+                    
+    4. NULL(=) COMP ; RESERVED_JMP
+        VISUAL REPRESENTATION: 
+                    ; 
+                   / \
+                COMP  RESERVED_JMP
+                  |
+                  OP
+                 / \
+          RESERVED RESERVED
+
+#INFIX TO POSTFIX
+#https://runestone.academy/ns/books/published/pythonds/BasicDS/InfixPrefixandPostfixExpressions.html
+
+INFIX                     PREFIX                 POSTFIX
+A + B * C + D             + + A * B C D          A B C * + D +
+(A + B) * (C + D)         * + A B + C D          A B + C D + *
+A * B + C * D             + * A B * C D          A B * C D * +
+A + B + C + D             + + + A B C D          A B + C + D + 
+
+'1' == 'op'
+'2' == '='
+'3' == ';'
+
+A 2 B 1 C 3 D            A B C 1 2 D 3
+RESERVED = A OP B ; R_JUMP        RESERVED A B OP = R_JUMP ;
+==================================================================================================================================
+command string 
+
+#CODE PLAN
+#Assembler - concerns I/O file write
+    1. RECEIVES the asm file
+    2. PARSES, DECODES, and WRITES the bit code.
+    3. OUTPUTS the new_bit_code_file using the same filename but different extension
+
+
+#Process 
+1. RECEIVE an asm as input
+2. First Pass -> ADD entries to the symbol table
+    > so there is a while loop iterating until the end of the file for every line
+    > CHECK IF the current command(line) is an A/C/L_COMMAND using the commandType in the parser module
+    > FOR every C_COMMAND/A_COMMAND, ADD 1 to an interator 
+    > IF it is a L_COMMAND then ADD entry to the file using the symbol method from parser and the current iterator
+
+3. 2nd pass -> ADD entries to the symbol table then WRITE the code
+    > while loop checking the file for advance
+    > CHECK IF the current command is A_COMMAND, 
+                IF A_COMMAND, CHECK the symbol table if there is an entry,
+                        IF there is an entry, create the bit code using the value from SymbolTable
+                        !!!TODO: how to check the current memory entry
+                        ELSE ADD the entry using the current memory entry
+                            then WRITE the bit code output to the file using the 
+                ELSE IF C_COMMAND then WRITE the bit code using the parser.dest parser.comp parser.jump
+                ELSE IF L_COMMAND then CHECK the SymbolTable
