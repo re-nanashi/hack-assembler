@@ -16,11 +16,12 @@ __hash_function(char *str)
         return i % HT_CAPACITY;
 }
 
-ht_item *
+struct ht_item *
 create_item(char *key, char *value)
 {
         /* creates a pointer to a new hash table item */
-        ht_item *item = (ht_item *)malloc(sizeof(ht_item));
+        struct ht_item *item =
+            (struct ht_item *)malloc(sizeof(struct ht_item));
 
         item->key = (char *)malloc(strlen(key) + 1);
         item->value = (char *)malloc(strlen(value) + 1);
@@ -32,12 +33,12 @@ create_item(char *key, char *value)
 }
 
 /* creates overflow buckets for collision handling */
-static linked_list **
+static struct linked_list **
 __create_overflow_buckets(struct hash_table *table)
 {
         /* create the overflow buckets; an array of linkedlists */
-        linked_list **buckets =
-            (linked_list **)calloc(table->size, sizeof(linked_list **));
+        struct linked_list **buckets = (struct linked_list **)calloc(
+            table->size, sizeof(struct linked_list **));
 
         for (int i = 0; i < table->size; i++)
                 buckets[i] = NULL;
@@ -55,7 +56,8 @@ create_table(int size)
         table->size = size;
         table->count = 0;
         table->overflow_buckets = __create_overflow_buckets(table);
-        table->items = (ht_item **)calloc(table->size, sizeof(ht_item *));
+        table->items =
+            (struct ht_item **)calloc(table->size, sizeof(struct ht_item *));
         for (int i = 0; i < table->size; i++)
                 table->items[i] = NULL;
 
@@ -63,7 +65,7 @@ create_table(int size)
 }
 
 void
-free_item(ht_item *item)
+free_item(struct ht_item *item)
 {
         /* free a hash_table item */
         free(item->key);
@@ -76,7 +78,7 @@ static void
 __free_overflow_buckets(struct hash_table *table)
 {
         /* free all the overflow buckets */
-        linked_list **buckets = table->overflow_buckets;
+        struct linked_list **buckets = table->overflow_buckets;
 
         for (int i = 0; i < table->size; i++)
                 free_linkedlist(buckets[i]);
@@ -89,7 +91,7 @@ free_table(struct hash_table *table)
 {
         /* frees the items within the hash_table */
         for (int i = 0; i < table->size; i++) {
-                ht_item *item = table->items[i];
+                struct ht_item *item = table->items[i];
                 if (item != NULL) free_item(item);
         }
 
@@ -105,9 +107,9 @@ free_table(struct hash_table *table)
 static void
 __handle_collision(struct hash_table *table,
                    unsigned long index,
-                   ht_item *item)
+                   struct ht_item *item)
 {
-        linked_list *head = table->overflow_buckets[index];
+        struct linked_list *head = table->overflow_buckets[index];
 
         if (head == NULL) {
                 /* create the overflow list */
@@ -129,12 +131,12 @@ void
 ht_insert(struct hash_table *table, char *key, char *value)
 {
         /* create the hash table item */
-        ht_item *item = create_item(key, value);
+        struct ht_item *item = create_item(key, value);
 
         /* compute the index */
         int index = __hash_function(key);
 
-        ht_item *current_item = table->items[index];
+        struct ht_item *current_item = table->items[index];
         /* if the key does not exist */
         if (current_item == NULL) {
                 /* if the table is already full */
@@ -172,8 +174,8 @@ ht_search(struct hash_table *table, char *key)
 {
         /* search the key in the hash table */
         int index = __hash_function(key);
-        ht_item *item = table->items[index];
-        linked_list *head = table->overflow_buckets[index];
+        struct ht_item *item = table->items[index];
+        struct linked_list *head = table->overflow_buckets[index];
 
         /* ensure that we move to items inside the overflow list that are not
          * NULL */
@@ -191,9 +193,9 @@ ht_search(struct hash_table *table, char *key)
 
 /* handles deletion of key inside overflow_buckets list */
 static void
-__handle_collision_chain_delete(linked_list **llist, char *key)
+__handle_collision_chain_delete(struct linked_list **llist, char *key)
 {
-        linked_list *current = *llist, *previous = NULL;
+        struct linked_list *current = *llist, *previous = NULL;
 
         while (current != NULL) {
                 if (strcmp(current->item->key, key) == 0) {
@@ -210,7 +212,7 @@ __handle_collision_chain_delete(linked_list **llist, char *key)
                         /* node to be deleted is inside the collision chain */
                         else {
                                 /* unlink the node from the linked list */
-                                linked_list *temp_node = current;
+                                struct linked_list *temp_node = current;
                                 previous->next = current->next;
 
                                 /* free the old node */
@@ -231,8 +233,9 @@ ht_delete(struct hash_table *table, char *key)
 {
         /* deletes an item from the table */
         int index = __hash_function(key);
-        ht_item *item = table->items[index];
-        linked_list *overflow_llist_head = table->overflow_buckets[index];
+        struct ht_item *item = table->items[index];
+        struct linked_list *overflow_llist_head =
+            table->overflow_buckets[index];
 
         /* item does not exist */
         if (item == NULL) return;
@@ -254,7 +257,7 @@ ht_delete(struct hash_table *table, char *key)
                         free_item(item);
 
                         /* create a temp node for the item */
-                        linked_list *node = overflow_llist_head;
+                        struct linked_list *node = overflow_llist_head;
 
                         /* adjust the new head of the chain */
                         overflow_llist_head = overflow_llist_head->next;
