@@ -1,20 +1,22 @@
+==================================================================================================================================
 #CURRENT TODO: 
 #TOKEN
 #Lexer << STUDY ABOUT THIS
 #Parser
 #SymbolTable << CREATE A HASH_TABLE FIRST
 #CodeModule - OUTPUT the bit code file from a C_COMMAND
+==================================================================================================================================
 
 #CHECK IF IDENTICAL
 ##https://www.geeksforgeeks.org/check-whether-the-two-binary-search-trees-are-identical-or-not/
 
+---------------------------------------------------------------------------------------
 #TOKENS
     RESERVED
         'A'
         'M'
         'D'
-
-    RESERVED_JMP 
+RESERVED_JMP 
         NULL
         'JGT' 
         'JEQ' 
@@ -42,6 +44,7 @@
     >TK_EQUALS
     ???L_SYMBOL || LPAREN
 
+---------------------------------------------------------------------------------------
 #OPERATOR PRECEDENCE
     >OPERATORS
         '+' 
@@ -52,7 +55,10 @@
         '@'
         '='
         ';'
+
+==================================================================================================================================
 #EXAMPLE OF A COMMAND
+# @ is a terminal
     1. @a_symbol
         VISUAL REPRESENTATION: 
                 A_OP
@@ -65,7 +71,10 @@
                 / \
             NULL   integer
 
+---------------------------------------------------------------------------------------
 #EXAMPLE OF L COMMAND
+# () is a terminal
+
     1. (L_SYMBOL)
         VISUAL REPRESENTATION: 
              L_SYMBOL
@@ -73,6 +82,7 @@
          LPAREN    RPAREN
         
 
+---------------------------------------------------------------------------------------
 #EXAMPLE OF C COMMAND
     COMP:  
         1. 0
@@ -117,7 +127,8 @@
                   OP
                  / \
           RESERVED RESERVED
-
+==================================================================================================================================
+---------------------------------------------------------------------------------------
 #INFIX TO POSTFIX
 #https://runestone.academy/ns/books/published/pythonds/BasicDS/InfixPrefixandPostfixExpressions.html
 
@@ -131,11 +142,121 @@ A + B + C + D             + + + A B C D          A B + C + D +
 '2' == '='
 '3' == ';'
 
-A 2 B 1 C 3 D            A B C 1 2 D 3
+INFIX                                    POSTFIX
+A 2 B 1 C 3 D                     A B C 1 2 D 3
 RESERVED = A OP B ; R_JUMP        RESERVED A B OP = R_JUMP ;
-==================================================================================================================================
-command string 
 
+
+---------------------------------------------------------------------------------------
+==================================================================================================================================
+#SYNTAX DEFINITION
+#A_COMMAND 
+#keyword: @
+    #@ is terminal
+    #ID is terminal
+    #number is terminal
+    A_COMMAND -> @ symbol
+    symbol -> ID 
+           |  INT
+
+    INT -> digit INT
+         | digit
+    digit -> 0|1|2|3|4|5|6|7|8|9
+
+    ID -> char ID
+        | char
+    char -> a|b|c|d|e|f|...
+
+    terminals => @ | digits | chars
+
+EXAMPLE TREE:
+   1. @2
+
+    A_COMMAND
+     /     \
+    @      INT
+            | 
+          digit
+            |
+            2
+
+   2. @ap
+
+    A_COMMAND
+     /     \
+    @      ID
+          /  \
+       char  ID  
+        |     |
+        |    char
+        |     |
+        a     p
+---------------------------------------------------------------------------------------
+#C_COMMAND
+#keyword: r_dest=, r_dest op, 0, 1
+C_COMMAND -> r_dest = comp ; r_jump 
+           | comp ; r_jump 
+           | r_dest = comp
+
+r_dest -> A|M|D|AM|AD|AMD|MD
+r_jump -> JGT|JMP|JLT|JEQ|JGE|JNE|JLE
+
+comp -> 0 | 1 | res | op 1 | op res | res op 1 | res op res
+
+comp -> res aop term | aop term | term | 0
+term -> 1 | res 
+res -> A|M|D
+aop -> '+' | '-' | '!' | '|' | '&'
+    
+#non-terminals -> r_dest | comp | r_jump | res | op
+#cterminals => 0|1|;|=|JGT|JMP|JLT|JEQ|JGE|JNE|JLE|A|M|D|AM|AD|AMD|MD|A|M|D|'+'|'-'|'!'|'|'|'&'
+
+EXAMPLE TREE:
+    1. D-A;JGT
+
+        C_COMMAND
+        /   |   \
+       /    ;   r_jump 
+    comp           |  
+  /  |  \         JGT 
+res  op res       
+ |   |   |       
+ D   -   A      
+
+    2. D;JLT
+
+        C_COMMAND
+        /   |   \
+       /    ;   r_jump 
+    comp           | 
+     |            JLT
+    res     
+     |            
+     D            
+
+    3. D = D + A
+
+        C_COMMAND
+        /   |   \
+    r_dest  =   comp
+       |        / | \
+       D     res  op res
+              |   |   |
+              D   +   A
+
+---------------------------------------------------------------------------------------
+#L_COMMAND 
+    #parenthesis are terminals
+    L_COMMAND -> ( ID )
+
+    ID -> ID char 
+    ID -> char
+    char -> a|b|c|d|e|f|...
+
+    #non-terminals 
+
+
+==================================================================================================================================
 #CODE PLAN
 #Assembler - concerns I/O file write
     1. RECEIVES the asm file
