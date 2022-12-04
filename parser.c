@@ -6,6 +6,12 @@
 #include "parser.h"
 #include "lexer.h"
 
+/**
+ * NOTE:
+ *      Parser assumes correctly formed input.
+ *      Does little to no error checking.
+ */
+
 static bool
 __is_acommand_op(const struct token *tok)
 {
@@ -25,40 +31,12 @@ __is_acommand(const struct token *tok)
         const struct token *head = tok;
         const struct token *symb = head->next;
         const struct token *eoc = symb->next;
+        bool is_acommand_op =
+            tok->kind == TK_OPERATOR
+            && (strcmp(tok->str, "@") == 0)
 
-        return (__is_acommand_op(head) && __is_asymbol(symb) && at_eoc(eoc));
-}
-
-// TODO: parse c command
-static bool
-__is_ccommand_valid_head(const struct token *tok)
-{
-        return tok->kind == TK_RESERVED
-               || (tok->kind == TK_INT && tok->val == 0);
-}
-
-static bool
-__is_ccommand_jmp_op(const struct token *tok)
-{
-        return tok->kind == TK_OPERATOR && (strcmp(tok->str, ";") == 0);
-}
-
-static bool
-__is_ccommand_exp_op(const struct token *tok)
-{
-        return tok->kind == TK_OPERATOR && (strcmp(tok->str, "=") == 0);
-}
-
-/* NOTE: C_COMMAND is assumed when the stream starts with TK_RESERVED or
- *       TK_INT(0) followed by TK_OPERATOR(; or =) */
-static bool
-__is_ccommand(const struct token *tok)
-{
-        const struct token *const head = tok;
-        const struct token *const op = head->next;
-
-        return (__is_ccommand_valid_head(head)
-                && (__is_ccommand_exp_op(op) || __is_ccommand_jmp_op(op)));
+                return (__is_acommand_op(head) && __is_asymbol(symb)
+                        && at_eoc(eoc));
 }
 
 static bool
@@ -78,8 +56,11 @@ __is_lcommand(const struct token *tok)
         return is_lcommand_open_op && is_lsymbol && is_lcommand_end_op;
 }
 
+/**
+ * Assume correct input.
+ */
 enum command_type
-parse(struct token *tk_stream)
+parser_parse(struct token *tk_stream)
 {
         enum command_type ret;
 
@@ -87,18 +68,12 @@ parse(struct token *tk_stream)
                 ret = A_COMMAND;
         }
 
-        else if (__is_ccommand(tk_stream)) {
-                ret = C_COMMAND;
-        }
-
         else if (__is_lcommand(tk_stream)) {
                 ret = L_COMMAND;
         }
 
         else {
-                /* a non-command syntax error */
-                printf("Syntax Error: No such command.\n");
-                exit(-1);
+                ret = C_COMMAND;
         }
 
         return ret;
