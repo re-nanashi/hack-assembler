@@ -13,30 +13,18 @@
  */
 
 static bool
-__is_acommand_op(const struct token *tok)
-{
-        return tok->kind == TK_OPERATOR && (strcmp(tok->str, "@") == 0);
-}
-
-static bool
-__is_asymbol(const struct token *tok)
-{
-        return (tok->kind == TK_RESERVED || tok->kind == TK_ID
-                || tok->kind == TK_INT);
-}
-
-static bool
 __is_acommand(const struct token *tok)
 {
-        const struct token *head = tok;
-        const struct token *symb = head->next;
+        const struct token *op = tok;
+        const struct token *symb = op->next;
         const struct token *eoc = symb->next;
-        bool is_acommand_op =
-            tok->kind == TK_OPERATOR
-            && (strcmp(tok->str, "@") == 0)
 
-                return (__is_acommand_op(head) && __is_asymbol(symb)
-                        && at_eoc(eoc));
+        bool is_acommand_op =
+            op->kind == TK_OPERATOR && (strcmp(op->str, "@") == 0);
+        bool is_asymb = symb->kind == TK_RESERVED || symb->kind == TK_ID
+                        || symb->kind == TK_INT;
+
+        return (is_acommand_op && is_asymb && at_eoc(eoc));
 }
 
 static bool
