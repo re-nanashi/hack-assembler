@@ -39,7 +39,8 @@ __is_lcommand(const struct token *tok)
         bool is_lcommand_end_op = lcommand_end_op->kind == TK_OPERATOR
                                   && (strcmp(lcommand_end_op->str, ")") == 0);
 
-        return is_lcommand_open_op && is_lsymbol && is_lcommand_end_op;
+        return is_lcommand_open_op && is_lsymbol && is_lcommand_end_op
+               && at_eoc(lcommand_end_op->next);
 }
 
 /* Assume correct input. */
