@@ -9,18 +9,18 @@
 
 /* @brief types of token */
 typedef enum {
-        TK_RES = 1,
-        TK_RES_JMP,
-        TK_RES_DEST,
-        TK_ID,
-        TK_EQUALS,
-        TK_OP,
-        TK_A_OP,
-        TK_LPAREN,
-        TK_RPAREN,
-        TK_SEMI,
-        TK_INT,
-        TK_EOC,
+        TOKEN_RES = 1,
+        TOKEN_RES_JMP,
+        TOKEN_RES_DEST,
+        TOKEN_ID,
+        TOKEN_EQUALS, /**/
+        TOKEN_OP, /*normal*/
+        TOKEN_A_OP, /**/
+        TOKEN_LPAREN, /**/
+        TOKEN_RPAREN, /**/
+        TOKEN_SEMI, /**/
+        TOKEN_INT,
+        TOKEN_EOC,
 } token_type_t;
 
 /* @brief Token struct */
