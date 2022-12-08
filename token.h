@@ -54,4 +54,12 @@ struct token *new_token(token_type_t tok_type,
                         struct token *cur_tok,
                         char *str);
 
+/**
+ * @brief Checks whether the token is an end-of-command
+ *
+ * @param cur_tok the current token
+ * @return true if the current token's kind is TK_EOC
+ */
+bool token_is_eoc(struct token const *cur_tok);
+
 #endif /* TOKEN_H */
