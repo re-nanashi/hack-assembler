@@ -13,12 +13,12 @@ typedef enum {
         TOKEN_RES_JMP,
         TOKEN_RES_DEST,
         TOKEN_ID,
-        TOKEN_EQUALS, /**/
-        TOKEN_OP, /*normal*/
-        TOKEN_A_OP, /**/
-        TOKEN_LPAREN, /**/
-        TOKEN_RPAREN, /**/
-        TOKEN_SEMI, /**/
+        TOKEN_EQUALS,
+        TOKEN_A_OP,
+        TOKEN_LPAREN,
+        TOKEN_RPAREN,
+        TOKEN_SEMI,
+        TOKEN_OP,
         TOKEN_INT,
         TOKEN_EOC,
 } token_type_t;
