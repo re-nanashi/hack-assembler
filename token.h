@@ -31,7 +31,7 @@ struct token {
         struct token *next;
         /* the string value */
         char *str;
-        /* the int value if TK_INT */
+        /* the int value if TOKEN_INT */
         int val;
 };
 
@@ -58,7 +58,7 @@ struct token *new_token(token_type_t tok_type,
  * @brief Checks whether the token is an end-of-command
  *
  * @param cur_tok the current token
- * @return true if the current token's kind is TK_EOC
+ * @return true if the current token's kind is TOKEN_EOC
  */
 bool token_is_eoc(struct token const *cur_tok);
 
