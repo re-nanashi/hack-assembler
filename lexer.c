@@ -1,15 +1,17 @@
-#include <ctype.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+/*
+#include <ctype.h>
 #include <stdarg.h>
+*/
 
 #include "lexer.h"
 
 /* checks if character is a delimeter */
 static bool
-__is_delimiter(char ch)
+_is_delimiter(char ch)
 {
         if (ch == ' ' || ch == '@' || ch == '=' || ch == ';' || ch == '+'
             || ch == '-' || ch == '(' || ch == ')' || ch == '&' || ch == '|'
@@ -21,7 +23,7 @@ __is_delimiter(char ch)
 
 /* checks if character is an operator */
 static bool
-__is_operator(char ch)
+_is_operator(char ch)
 {
         if (ch == '@' || ch == '+' || ch == '-' || ch == '=' || ch == ';'
             || ch == '!' || ch == '&' || ch == '|' || ch == '(' || ch == ')')
@@ -33,13 +35,12 @@ __is_operator(char ch)
 /* checks if string is a valid identifier by checking if an integer is not used
  * as the starting char of the variable */
 static bool
-__is_valid_id(char *str)
+_is_valid_id(char *str)
 {
         /* return false if a digit is used to begin an identifier */
         if (str[0] == '0' || str[0] == '1' || str[0] == '2' || str[0] == '3'
             || str[0] == '4' || str[0] == '5' || str[0] == '6' || str[0] == '7'
-            || str[0] == '8' || str[0] == '9'
-            || __is_delimiter(str[0]) == true)
+            || str[0] == '8' || str[0] == '9' || _is_delimiter(str[0]) == true)
                 return false;
 
         return true;
@@ -47,7 +48,7 @@ __is_valid_id(char *str)
 
 /* checks if string is a reserved keyword */
 static bool
-__is_keyword(char *str)
+_is_keyword(char *str)
 {
         if (!strcmp(str, "M") || !strcmp(str, "D") || !strcmp(str, "MD")
             || !strcmp(str, "A") || !strcmp(str, "AM") || !strcmp(str, "AD")
@@ -62,9 +63,10 @@ __is_keyword(char *str)
 
 /* checks if input string is a number */
 static bool
-__is_integer(char *str)
+_is_integer(char *str)
 {
         int i;
+        /*TODO: find out exact int length: uint8_t */
         int len = strlen(str);
 
         if (len == 0) return false;
@@ -83,13 +85,15 @@ __is_integer(char *str)
 /* extracts the substring from left index to right index from the
  * string input */
 static char *
-__extract_substr(char *str, int left, int right)
+_extract_substr(char *str, int left, int right)
 {
+        char *substr;
         int i;
-        char *substr = (char *)malloc(sizeof(char) * (right - left + 2));
 
+        /* verify allocation */
+        substr = (char *)malloc(sizeof(char) * (right - left + 2));
         if (substr == NULL) {
-                printf("Error: Encountered an allocation error.\n");
+                printf("Error: allocation error encountered.\n");
                 exit(-1);
         }
 
@@ -101,66 +105,66 @@ __extract_substr(char *str, int left, int right)
         return substr;
 }
 
-struct token *
-allocate_token(void)
+void
+_allocate_op_token(struct token **tok, char op_char)
 {
-        struct token *tok = (struct token *)calloc(1, sizeof(struct token));
+        struct token *cur_tok = *tok;
 
-        /* check allocation */
-        if (tok == NULL) {
-                printf("Error: Encountered an allocation error.\n");
-                exit(-1);
+        /* convert the operator char to string */
+        char str[2] = "\0";
+        str[0] = op_char;
+
+        switch (op_char) {
+                case '=':
+                        *tok = new_token(TOKEN_EQUALS, cur_tok, str);
+                        break;
+                case '@':
+                        *tok = new_token(TOKEN_A_OP, cur_tok, str);
+                        break;
+                case '(':
+                        *tok = new_token(TOKEN_LPAREN, cur_tok, str);
+                        break;
+                case ')':
+                        *tok = new_token(TOKEN_RPAREN, cur_tok, str);
+                        break;
+                case ';':
+                        *tok = new_token(TOKEN_SEMI, cur_tok, str);
+                        break;
+                default:
+                        *tok = new_token(TOKEN_OP, cur_tok, str);
         }
-
-        return tok;
 }
 
 struct token *
-new_token(token_kind tk_kind, struct token *cur, char *str)
-{
-        /* allocate to memory */
-        struct token *tok = allocate_token();
-        tok->str = (char *)malloc(strlen(str) + 1);
-
-        tok->kind = tk_kind;
-        strcpy(tok->str, str);
-        cur->next = tok;
-
-        return tok;
-}
-
-struct token *
-tokenize(char *command_buffer)
+lexer_tokenize(char *cmd_buffer)
 {
         /* dummy head */
         struct token head;
         head.next = NULL;
-        struct token *curr = &head;
+        struct token *cur_tok = &head;
 
-        int str_l = 0, str_r = 0;
-        int cb_len = strlen(command_buffer);
+        int left = 0, right = 0;
+        int cb_len = strlen(cmd_buffer);
         /* loop and tokenize until the end of the command_buffer */
-        while (str_r <= cb_len && str_l <= str_r) {
-                if (__is_delimiter(command_buffer[str_r]) == false) str_r++;
+        while (right <= cb_len && left <= right) {
+                /* if NOT delimeter */
+                if (!_is_delimiter(cmd_buffer[right])) right++;
 
-                if (__is_delimiter(command_buffer[str_r]) == true
-                    && str_l == str_r) {
-                        if (__is_operator(command_buffer[str_r]) == true) {
-                                /* convert the operator char to string */
-                                char str[2] = "\0";
-                                str[0] = command_buffer[str_r];
-                                curr = new_token(TK_OPERATOR, curr, str);
+                /* if delimeter */
+                if (_is_delimiter(cmd_buffer[right]) && left == right) {
+                        if (_is_operator(cmd_buffer[right])) {
+                                _allocate_op_token(&cur_tok,
+                                                   cmd_buffer[right]);
                         }
 
-                        str_r++;
-                        str_l = str_r;
+                        right++;
+                        left = right;
                 }
 
                 /* the current iterator points to a char that is not an
                  * operator or delimeter */
-                if (__is_delimiter(command_buffer[str_r]) == true
-                        && str_l != str_r
-                    || (str_r == cb_len && str_l != str_r))
+                if (_is_delimiter(cmd_buffer[right]) == true && left != right
+                    || (right == cb_len && left != right))
                 {
                         /* extracts a substring that is not an operator then
                          * determines the token kind */
@@ -204,14 +208,8 @@ tokenize(char *command_buffer)
         return head.next;
 }
 
-bool
-at_eoc(struct token const *cur)
-{
-        return TK_EOC == cur->kind;
-}
-
 struct token *
-tk_peak(struct token const *tok)
+lexer_peak(struct token const *tok)
 {
         if (tok->next == NULL) {
                 return NULL;
