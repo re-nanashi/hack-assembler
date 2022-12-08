@@ -50,6 +50,6 @@ struct token *allocate_token(void);
  * @param str the string to tokenize
  * @return the new allocated token's address
  */
-struct token *new_token(token_t tk_type, struct token *cur_tk, char *str);
+struct token *new_token(token_t tok_type, struct token *cur_tok, char *str);
 
 #endif /* TOKEN_H */
