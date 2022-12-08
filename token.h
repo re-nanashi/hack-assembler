@@ -4,14 +4,14 @@
  * @brief Token public functions and data types
  */
 
-#ifdef TOKEN_H
+#ifndef TOKEN_H
 #define TOKEN_H
 
 /* @brief types of token */
 typedef enum {
-        TK_RESERVED = 1,
-        TK_RESERVED_JMP,
-        TK_RESERVED_DEST,
+        TK_RES = 1,
+        TK_RES_JMP,
+        TK_RES_DEST,
         TK_ID,
         TK_EQUALS,
         TK_OP,
@@ -21,12 +21,12 @@ typedef enum {
         TK_SEMI,
         TK_INT,
         TK_EOC,
-} token_t;
+} token_type_t;
 
 /* @brief Token struct */
 struct token {
         /* type of the token */
-        token_t type;
+        token_type_t type;
         /* the proceeding token */
         struct token *next;
         /* the string value */
@@ -45,11 +45,13 @@ struct token *allocate_token(void);
 /**
  * @brief Create a new token
  *
- * @param tk_type the current token
- * @param cur_tk the current token
+ * @param tok_type the current token
+ * @param cur_tok the current token
  * @param str the string to tokenize
  * @return the new allocated token's address
  */
-struct token *new_token(token_t tok_type, struct token *cur_tok, char *str);
+struct token *new_token(token_type_t tok_type,
+                        struct token *cur_tok,
+                        char *str);
 
 #endif /* TOKEN_H */
