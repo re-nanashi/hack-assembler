@@ -65,9 +65,9 @@ _is_keyword(char *str)
 static bool
 _is_integer(char *str)
 {
-        int i;
+        size_t i;
         /*TODO: find out exact int length: uint8_t */
-        int len = strlen(str);
+        size_t len = strlen(str);
 
         if (len == 0) return false;
 
@@ -88,7 +88,7 @@ static char *
 _extract_substr(char *str, int left, int right)
 {
         char *substr;
-        int i;
+        size_t i;
 
         /* verify allocation */
         substr = (char *)malloc(sizeof(char) * (right - left + 2));
@@ -144,7 +144,7 @@ lexer_tokenize(char *cmd_buffer)
         struct token *cur_tok = &head;
 
         int left = 0, right = 0;
-        int cb_len = strlen(cmd_buffer);
+        size_t cb_len = strlen(cmd_buffer);
         /* loop and tokenize until the end of the command_buffer */
         while (right <= cb_len && left <= right) {
                 /* if NOT delimeter */
@@ -156,7 +156,6 @@ lexer_tokenize(char *cmd_buffer)
                                 _allocate_op_token(&cur_tok,
                                                    cmd_buffer[right]);
                         }
-
                         right++;
                         left = right;
                 }
@@ -169,41 +168,38 @@ lexer_tokenize(char *cmd_buffer)
                         /* extracts a substring that is not an operator then
                          * determines the token kind */
                         char *substr =
-                            __extract_substr(command_buffer, str_l, str_r - 1);
+                            _extract_substr(cmd_buffer, left, right - 1);
 
-                        if (__is_keyword(substr) == true)
-                                curr = new_token(TK_RESERVED, curr, substr);
-
-                        else if (__is_integer(substr) == true) {
-                                curr = new_token(TK_INT, curr, substr);
-                                curr->val = strtol(substr, &substr, 10);
+                        if (_is_keyword(substr)) {
+                                cur_tok =
+                                    new_token(TOKEN_RES, cur_tok, substr);
                         }
-
-                        else if (__is_valid_id(substr) == true
-                                 && __is_delimiter(command_buffer[str_r - 1])
-                                        == false)
-                                curr = new_token(TK_ID, curr, substr);
-
-                        else if (__is_valid_id(substr) == false
-                                 && __is_delimiter(command_buffer[str_r - 1])
-                                        == false)
-                        {
+                        else if (_is_integer(substr)) {
+                                cur_tok =
+                                    new_token(TOKEN_INT, cur_tok, substr);
+                                cur_tok->val = strtol(substr, &substr, 10);
+                        }
+                        else if (_is_valid_id(substr)
+                                 && !_is_delimiter(cmd_buffer[right - 1])) {
+                                cur_tok = new_token(TOKEN_ID, cur_tok, substr);
+                        }
+                        else if (!_is_valid_id(substr)
+                                 && !_is_delimiter(cmd_buffer[right - 1])) {
                                 printf(
                                     "Syntax Error: Not a valid identifier.\n");
                                 exit(-1);
                         }
-
                         else {
                                 printf("Error: Cannot tokenize string.\n");
                                 exit(-1);
                         }
 
-                        str_l = str_r;
+                        left = right;
                 }
         }
 
         /* link an EOC token at the end */
-        new_token(TK_EOC, curr, "");
+        new_token(TOKEN_EOC, cur_tok, "");
 
         return head.next;
 }
